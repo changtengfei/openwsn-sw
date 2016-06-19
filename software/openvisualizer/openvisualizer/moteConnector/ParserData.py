@@ -112,6 +112,16 @@ class ParserData(Parser.Parser):
                # no udplatency
                # print input
                pass     
+           if len(input)==73:
+               label = ''.join([chr(c) for c in input[-7:]])
+               # mote ID
+               moteId = struct.unpack('>H',''.join(chr(c) for c in input[-9:-7]))
+               # squence number
+               sn = struct.unpack('<h',''.join(chr(c) for c in input[-11:-9]))
+               # init ASN
+               initASN = input[-16:-11]
+               diff     = self._asndiference(initASN,asnbytes)
+               print label, moteId, sn, diff
         else:
            pass      
        
