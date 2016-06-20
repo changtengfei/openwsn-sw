@@ -9,6 +9,7 @@ log.setLevel(logging.ERROR)
 log.addHandler(logging.NullHandler())
 
 import struct
+import os
 
 from pydispatch import dispatcher
 
@@ -28,6 +29,10 @@ class ParserData(Parser.Parser):
         
         # log
         log.info("create instance")
+
+        # file
+        self.logFile = open('cstormPacket.txt','w')
+        self.logFile.write('mote  sn latency\n')
         
         # initialize parent class
         Parser.Parser.__init__(self,self.HEADER_LENGTH)
@@ -111,7 +116,7 @@ class ParserData(Parser.Parser):
            else:
                # no udplatency
                # print input
-               pass     
+               pass
            if len(input)==73:
                label = ''.join([chr(c) for c in input[-7:]])
                # mote ID
@@ -121,7 +126,10 @@ class ParserData(Parser.Parser):
                # init ASN
                initASN = input[-16:-11]
                diff     = self._asndiference(initASN,asnbytes)
-               print label, moteId, sn, diff
+               print '{0} {1} {2}'.format(moteId,sn,diff)
+               self.logFile.write('{0:5} {1:5} {2:5}\n'.format(moteId,sn,diff))
+               self.logFile.flush()
+               os.fsync(self.logFile)
         else:
            pass      
        
