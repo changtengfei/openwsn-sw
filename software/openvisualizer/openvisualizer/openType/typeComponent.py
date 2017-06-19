@@ -160,6 +160,8 @@ class typeComponent(openType.openType):
         
         elif type==self.COMPONENT_UECHO:
             self.desc = 'UECHO'
+        elif type==self.COMPONENT_UINJECT:
+            self.desc = 'COMPONENT_UINJECT'
         
         elif type==self.COMPONENT_RRT:
             self.desc = 'RRT'

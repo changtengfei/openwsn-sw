@@ -9,9 +9,12 @@ log.setLevel(logging.ERROR)
 log.addHandler(logging.NullHandler())
 
 import struct
+import numpy
 
 from ParserException import ParserException
 import Parser
+from pydispatch import dispatcher
+import json
 
 import StackDefines
 
@@ -25,6 +28,10 @@ class ParserInfoErrorCritical(Parser.Parser):
     SEVERITY_ALL        = [SEVERITY_INFO,
                            SEVERITY_ERROR,
                            SEVERITY_CRITICAL,]
+                           
+    WILDCARD  = '*'
+    LARGETIMECORRECTION = 5 # in ticks
+    MAXTIMERCOUNTER     = 0xffff
     
     def __init__(self,severity):
         assert severity in self.SEVERITY_ALL
@@ -63,6 +70,23 @@ class ParserInfoErrorCritical(Parser.Parser):
             ERROR_DESC = self._translateErrorDescription(error_code,arg1,arg2),
         )
         
+        if error_code == 28: # timeCorrection error
+            tc = {}
+            tc['MOTEID']            = moteId
+            tc['COMPONENT']         = self._translateCallingComponent(callingComponent)
+            tc['ERROR_DESC']        = self._translateErrorDescription(error_code,arg1,arg2),
+            tc['TimeCorrection']    = int(numpy.int16(arg1))
+            
+            dispatcher.send(
+                sender        = self.WILDCARD,
+                signal        = 'timeCorrection',
+                data          = json.dumps(tc),
+            )
+            
+            # only print timeCorrection when it's larger than +/-5 ticks.
+            if arg1 > self.MAXTIMERCOUNTER - self.LARGETIMECORRECTION or arg1 < self.LARGETIMECORRECTION:
+                return 'error', input
+        
         # log
         if   self.severity==self.SEVERITY_INFO:
             log.info(output)
@@ -85,6 +109,9 @@ class ParserInfoErrorCritical(Parser.Parser):
     
     def _translateErrorDescription(self,error_code,arg1,arg2):
         try:
+            if error_code == 60:
+                arg1 = StackDefines.sixtop_returncode[arg1]
+                arg2 = StackDefines.sixtop_statemachine[arg2]
             return StackDefines.errorDescriptions[error_code].format(arg1,arg2)
         except KeyError:
             return "unknown error {0} arg1={1} arg2={2}".format(error_code,arg1,arg2)

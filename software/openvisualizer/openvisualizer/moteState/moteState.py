@@ -256,6 +256,7 @@ class StateNeighborsRow(StateElem):
         self.data[0]['asn'].update(notif.asn_0_1,
                                    notif.asn_2_3,
                                    notif.asn_4)
+        self.data[0]['f6PNORES']                 = notif.f6PNORES
 
 class StateIsSync(StateElem):
     
@@ -412,23 +413,26 @@ class moteState(eventBusClient.eventBusClient):
     TRIGGER_DAGROOT     = 'DAGroot'
     SET_COMMAND         = 'imageCommand'
 
-    # command for golen image:        command,       id length
-    COMMAND_SET_EBPERIOD          =  ['ebPeriod',     0, 1]
-    COMMAND_SET_CHANNEL           =  ['channel',      1, 1]
-    COMMAND_SET_KAPERIOD          =  ['kaPeriod',     2, 2]
-    COMMAND_SET_DIOPERIOD         =  ['dioPeriod',    3, 2]
-    COMMAND_SET_DAOPERIOD         =  ['daoPeriod',    4, 2]
-    COMMAND_SET_DAGRANK           =  ['dagrank',      5, 2]
-    COMMAND_SET_SECURITY_STATUS   =  ['security',     6, 1]
-    COMMAND_SET_FRAMELENGTH       =  ['frameLength',  7, 2]
-    COMMAND_SET_ACK_STATUS        =  ['ackReply',     8, 1]
-    COMMAND_SET_6P_ADD            =  ['6pAdd',        9, 3]
-    COMMAND_SET_6P_DELETE         =  ['6pDelete',    10, 3]
-    COMMAND_SET_6P_COUNT          =  ['6pCount',     11, 0]
-    COMMAND_SET_6P_LIST           =  ['6pList',      12, 0]
-    COMMAND_SET_6P_CLEAR          =  ['6pClear',     13, 0]
-    COMMAND_SET_SLOTDURATION      =  ['slotDuration',14, 2]
-    COMMAND_SET_6PRESPONSE_STATUS =  ['response',    15, 1]
+    # command for golgen image       name,             id length
+    COMMAND_SET_EBPERIOD          = ['ebPeriod',       0, 1]
+    COMMAND_SET_CHANNEL           = ['channel',        1, 1]
+    COMMAND_SET_KAPERIOD          = ['kaPeriod',       2, 2]
+    COMMAND_SET_DIOPERIOD         = ['dioPeriod',      3, 2]
+    COMMAND_SET_DAOPERIOD         = ['daoPeriod',      4, 2]
+    COMMAND_SET_DAGRANK           = ['dagrank',        5, 2]
+    COMMAND_SET_SECURITY_STATUS   = ['security',       6, 1]
+    COMMAND_SET_SLOTFRAMELENGTH   = ['slotframeLength',7, 2]
+    COMMAND_SET_ACK_STATUS        = ['ackReply',       8, 1]
+    COMMAND_SET_6P_ADD            = ['6pAdd',          9,16] # maxium three candidate cells, length could be shorter
+    COMMAND_SET_6P_DELETE         = ['6pDelete',      10, 8] # only one cell to delete
+    COMMAND_SET_6P_RELOCATE       = ['6pRelocate',    11,24] # one cell to relocate, three candidate cells , length could be shorter
+    COMMAND_SET_6P_COUNT          = ['6pCount',       12, 3]
+    COMMAND_SET_6P_LIST           = ['6pList',        13, 7]
+    COMMAND_SET_6P_CLEAR          = ['6pClear',       14, 0]
+    COMMAND_SET_SLOTDURATION      = ['slotDuration',  15, 2]
+    COMMAND_SET_6PRESPONSE        = ['6pResponse',    16, 1]
+    COMMAND_SET_UINJECTPERIOD     = ['uinjectPeriod', 17, 1]
+    COMMAND_SET_ECHO_REPLY_STATUS = ['echoReply',     18, 1]
     COMMAND_ALL                   = [
         COMMAND_SET_EBPERIOD ,
         COMMAND_SET_CHANNEL,
@@ -437,15 +441,18 @@ class moteState(eventBusClient.eventBusClient):
         COMMAND_SET_DAOPERIOD,
         COMMAND_SET_DAGRANK,
         COMMAND_SET_SECURITY_STATUS,
-        COMMAND_SET_FRAMELENGTH,
+        COMMAND_SET_SLOTFRAMELENGTH,
         COMMAND_SET_ACK_STATUS,
         COMMAND_SET_6P_ADD,
         COMMAND_SET_6P_DELETE,
+        COMMAND_SET_6P_RELOCATE,
         COMMAND_SET_6P_COUNT,
         COMMAND_SET_6P_LIST,
         COMMAND_SET_6P_CLEAR,
         COMMAND_SET_SLOTDURATION,
-        COMMAND_SET_6PRESPONSE_STATUS
+        COMMAND_SET_6PRESPONSE,
+        COMMAND_SET_UINJECTPERIOD,
+        COMMAND_SET_ECHO_REPLY_STATUS,
     ]
 
     TRIGGER_ALL         = [
@@ -503,7 +510,8 @@ class moteState(eventBusClient.eventBusClient):
                                                         'numTxACK',
                                                         'numWraps',
                                                         'asn',
-                                                        'joinPrio'
+                                                        'joinPrio',
+                                                        'f6PNORES'
                                                     ]
                                                 ))
         self.state[self.ST_ISSYNC]          = StateIsSync()
