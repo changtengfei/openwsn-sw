@@ -68,7 +68,7 @@ def findSerialPorts():
         if platform.system() == 'Darwin':
             portMask = ['/dev/tty.usbserial-*']
         else:
-            portMask = ['/dev/ttyUSB*', '/dev/ttyAMA*', '/dev/ttyA8_M3']
+            portMask = ['/dev/ttyUSB*']
         for mask in portMask :
             serialports += [(s,BAUDRATE_GINA) for s in glob.glob(mask)]
 
