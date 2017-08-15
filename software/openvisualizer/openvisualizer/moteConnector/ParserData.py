@@ -46,6 +46,8 @@ class ParserData(Parser.Parser):
         if log.isEnabledFor(logging.DEBUG):
             log.debug("received data {0}".format(input))
         
+        if len(input) == 2+5+10:
+            raise ParserException(ParserException.WRONG_LENGTH, '{0} looks like an echo reply'.format(input))
         # ensure input not short longer than header
         self._checkLength(input)
    
