@@ -219,6 +219,8 @@ class OpenVisualizerApp(object):
             if idManager and idManager.get16bAddr():
                 src_s = ''.join(['%02X'%b for b in idManager.get16bAddr()])
                 motes.append(src_s)
+            else:
+                continue
             neighborTable = ms.getStateElem(ms.ST_NEIGHBORS)
             for neighbor in neighborTable.data:
                 if len(neighbor.data)==0:
